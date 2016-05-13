@@ -313,7 +313,7 @@ class NemConnect:
         data['fee'] = data['fee'] * 5 / 4
         return True, data
 
-    def prepareTransfer(self, senderPublicKey, multisigPublicKey, recipientCompressedKey, amount, message, mosaics):
+    def prepareTransferData(self, senderPublicKey, multisigPublicKey, recipientCompressedKey, amount, message, mosaics):
         mosaicsFee = 0
         if mosaics:
             ok, j = self.calculateMosaicsFee(amount, mosaics)
@@ -326,7 +326,10 @@ class NemConnect:
         entity = self._constructTransfer(actualSender, recipientCompressedKey, amount, message, mosaics, mosaicsFee)
         if multisigPublicKey:
             entity = self._multisigWrapper(senderPublicKey, entity)
-        return self._prepare(entity)
+        return entity
+
+    def prepareTransfer(self, senderPublicKey, multisigPublicKey, recipientCompressedKey, amount, message, mosaics):
+        return self._prepare(self.prepareTransferData(senderPublicKey, multisigPublicKey, recipientCompressedKey, amount, message, mosaics))
 
     def prepareImportanceTransfer(self, senderPublicKey, multisigPublicKey, remotePublicKey, doAssign):
         actualSender = multisigPublicKey or senderPublicKey

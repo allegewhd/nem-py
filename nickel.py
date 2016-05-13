@@ -93,6 +93,19 @@ def prettyPrint(j):
     print json.dumps(j, indent=2)
 
 
+def sendAndAnnounceTransaction(connector, jsonData):
+    print " [+] TRYING TO SIGN PREPARED DATA"
+    data = unhexlify(jsonData)
+    sig = a.sign(data)
+
+    ok, j = connector.transferAnnounce(jsonData, hexlify(sig))
+    if ok:
+        print " [+] ANNOUNCED"
+    else:
+        print " [!] announce failed"
+    prettyPrint(j)
+
+
 def signAndAnnounceTransaction(connector, jsonData):
     print " [+] TRYING TO SIGN PREPARED DATA"
     data = unhexlify(jsonData['data'])
@@ -106,7 +119,8 @@ def signAndAnnounceTransaction(connector, jsonData):
     prettyPrint(j)
 
 
-c = NemConnect('127.0.0.1', 7890)
+#  c = NemConnect('127.0.0.1', 7890)
+c = NemConnect('59.106.209.120', 7895)
 
 if args.sub == 'info':
     j = c.nodeInfo()
@@ -146,7 +160,11 @@ elif args.sub == 'transfer':
 
     a = Account(privkey)
     print " [+] PREPARING TRANSACTION"
-    ok, j = c.prepareTransfer(a.getHexPublicKey(), args.multisig, recipient, amount, message, mosaics)
+    #  ok, j = c.prepareTransfer(a.getHexPublicKey(), args.multisig, recipient, amount, message, mosaics)
+    transferData = c.prepareTransferData(a.getHexPublicKey(), args.multisig, recipient, amount, message, mosaics)
+    print json.dumps(transferData)
+    sendAndAnnounceTransaction(c, hexlify(json.dumps(transferData)))
+    sys.exit(0)
 
 elif args.sub == 'remote':
     privkey = args.key
