@@ -93,12 +93,12 @@ def prettyPrint(j):
     print json.dumps(j, indent=2)
 
 
-def sendAndAnnounceTransaction(connector, jsonData):
+def sendAndAnnounceTransaction(connector, binaryTransferData):
     print " [+] TRYING TO SIGN PREPARED DATA"
-    data = unhexlify(jsonData)
-    sig = a.sign(data)
+    print binaryTransferData
+    sig = a.sign(binaryTransferData)
 
-    ok, j = connector.transferAnnounce(jsonData, hexlify(sig))
+    ok, j = connector.transferAnnounce(binaryTransferData, hexlify(sig))
     if ok:
         print " [+] ANNOUNCED"
     else:
@@ -163,7 +163,8 @@ elif args.sub == 'transfer':
     #  ok, j = c.prepareTransfer(a.getHexPublicKey(), args.multisig, recipient, amount, message, mosaics)
     transferData = c.prepareTransferData(a.getHexPublicKey(), args.multisig, recipient, amount, message, mosaics)
     print json.dumps(transferData)
-    sendAndAnnounceTransaction(c, hexlify(json.dumps(transferData)))
+    binaryTransferData = c.serializeTransferData(transferData)
+    sendAndAnnounceTransaction(c, binaryTransferData)
     sys.exit(0)
 
 elif args.sub == 'remote':

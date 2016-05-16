@@ -328,6 +328,13 @@ class NemConnect:
             entity = self._multisigWrapper(senderPublicKey, entity)
         return entity
 
+    def serializeTransferData(self, entity):
+        """
+            reference by http://bob.nem.ninja/docs/#creating-a-signed-transaction
+            convert entity object to hexlify byte array for posting transaction data to remote NIS node
+        """
+        pass
+
     def prepareTransfer(self, senderPublicKey, multisigPublicKey, recipientCompressedKey, amount, message, mosaics):
         return self._prepare(self.prepareTransferData(senderPublicKey, multisigPublicKey, recipientCompressedKey, amount, message, mosaics))
 
