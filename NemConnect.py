@@ -2,6 +2,7 @@ import json
 import requests
 import base64
 import datetime
+import struct
 from binascii import hexlify, unhexlify
 from math import floor, ceil, log, atan
 
@@ -18,9 +19,9 @@ CURRENT_MOSAIC_SINK = 'TBMOSAICOD4F54EE5CDMR23CCBGOAM2XSJBR5OLC'
 CURRENT_NAMESPACE_SINK = 'TAMESPACEWH4MKFMBCVFERDPOOP4FK7MTDJEYP35'
 CURRENT_NETWORK_VERSION = TEST_NET_VERSION
 
-#CURRENT_MOSAIC_SINK = 'MBMOSAICOD4F54EE5CDMR23CCBGOAM2XSKYHTOJD'
-#CURRENT_NAMESPACE_SINK = 'MAMESPACEWH4MKFMBCVFERDPOOP4FK7MTCZTG5E7'
-#def CURRENT_NETWORK_VERSION(ver):
+# CURRENT_MOSAIC_SINK = 'MBMOSAICOD4F54EE5CDMR23CCBGOAM2XSKYHTOJD'
+# CURRENT_NAMESPACE_SINK = 'MAMESPACEWH4MKFMBCVFERDPOOP4FK7MTCZTG5E7'
+# def CURRENT_NETWORK_VERSION(ver):
 #    return (0x60000000 | ver)
 
 
@@ -333,7 +334,37 @@ class NemConnect:
             reference by http://bob.nem.ninja/docs/#creating-a-signed-transaction
             convert entity object to hexlify byte array for posting transaction data to remote NIS node
         """
-        pass
+
+        binaryStr = ''
+        # Common transaction part of the byte array
+        binaryStr += hexlify(struct.pack('i', entity['type']))
+        binaryStr += hexlify(struct.pack("<L", entity['version']))
+        binaryStr += hexlify(struct.pack('i', entity['timeStamp']))
+        binaryStr += hexlify(struct.pack('i', 32)) # Length of public key byte array (always 32)
+        binaryStr += hexlify(entity['signer'])
+        binaryStr += hexlify(struct.pack('l', entity['fee']))
+        binaryStr += hexlify(struct.pack('i', entity['deadline']))
+
+        # transfer transaction part
+        binaryStr += hexlify(struct.pack('i', 40)) # Length of recipient address (always 40)
+        binaryStr += hexlify(entity['recipient'])
+        binaryStr += hexlify(struct.pack('l', entity['amount']))
+
+        message = unhexlify(entity['message']['payload'])
+        msgLen = len(message) if entity['message']['payload'] else 0
+
+        binaryStr += hexlify(struct.pack('i', 8 + msgLen))
+        if msgLen > 0:
+            binaryStr += hexlify(struct.pack('i', entity['message']['type']))
+            binaryStr += hexlify(struct.pack('i', msgLen))
+            binaryStr += entity['message']['payload']
+
+        entityVersion = entity['version'] & 0xffffff
+        if entityVersion >= 2:
+            pass
+
+        return binaryStr
+
 
     def prepareTransfer(self, senderPublicKey, multisigPublicKey, recipientCompressedKey, amount, message, mosaics):
         return self._prepare(self.prepareTransferData(senderPublicKey, multisigPublicKey, recipientCompressedKey, amount, message, mosaics))
