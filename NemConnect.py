@@ -17,12 +17,14 @@ def TEST_NET_VERSION(ver):
 
 CURRENT_MOSAIC_SINK = 'TBMOSAICOD4F54EE5CDMR23CCBGOAM2XSJBR5OLC'
 CURRENT_NAMESPACE_SINK = 'TAMESPACEWH4MKFMBCVFERDPOOP4FK7MTDJEYP35'
-CURRENT_NETWORK_VERSION = TEST_NET_VERSION
+#  CURRENT_NETWORK_VERSION = TEST_NET_VERSION
+
+CURRENT_NETWORK_ID = 96
 
 # CURRENT_MOSAIC_SINK = 'MBMOSAICOD4F54EE5CDMR23CCBGOAM2XSKYHTOJD'
 # CURRENT_NAMESPACE_SINK = 'MAMESPACEWH4MKFMBCVFERDPOOP4FK7MTCZTG5E7'
-# def CURRENT_NETWORK_VERSION(ver):
-#    return (0x60000000 | ver)
+def CURRENT_NETWORK_VERSION(ver):
+  return (0x60000000 | ver)
 
 
 class NemConnect:
@@ -353,11 +355,14 @@ class NemConnect:
         message = unhexlify(entity['message']['payload'])
         msgLen = len(message) if entity['message']['payload'] else 0
 
-        binaryStr += hexlify(struct.pack('i', 8 + msgLen))
         if msgLen > 0:
+            binaryStr += hexlify(struct.pack('i', 8 + msgLen))
             binaryStr += hexlify(struct.pack('i', entity['message']['type']))
             binaryStr += hexlify(struct.pack('i', msgLen))
             binaryStr += entity['message']['payload']
+        else:
+            binaryStr += hexlify(struct.pack('i', 0))
+
 
         entityVersion = entity['version'] & 0xffffff
         if entityVersion >= 2:
