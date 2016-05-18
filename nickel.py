@@ -150,7 +150,7 @@ elif args.sub == 'transfer':
     privkey = args.key
     recipient = args.to
     amount = args.amount
-    message = 'nickel test'
+    message = 'nickel testnet tool'
 
     if args.mosaic:
         mosaics = map(lambda p: (p[0], int(p[1])), map(lambda x: x.split(':'), args.mosaic))
