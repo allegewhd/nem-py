@@ -158,6 +158,7 @@ elif args.sub == 'transfer':
     else:
         mosaics = None
 
+    print args
     a = Account(privkey)
     print " [+] PREPARING TRANSACTION"
     #  ok, j = c.prepareTransfer(a.getHexPublicKey(), args.multisig, recipient, amount, message, mosaics)

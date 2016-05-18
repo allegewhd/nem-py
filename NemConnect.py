@@ -343,7 +343,7 @@ class NemConnect:
         binaryStr += hexlify(struct.pack("<L", entity['version']))
         binaryStr += hexlify(struct.pack('i', entity['timeStamp']))
         binaryStr += hexlify(struct.pack('i', 32)) # Length of public key byte array (always 32)
-        binaryStr += hexlify(entity['signer'])
+        binaryStr += entity['signer']
         binaryStr += hexlify(struct.pack('l', entity['fee']))
         binaryStr += hexlify(struct.pack('i', entity['deadline']))
 
@@ -363,9 +363,9 @@ class NemConnect:
         else:
             binaryStr += hexlify(struct.pack('i', 0))
 
-
         entityVersion = entity['version'] & 0xffffff
         if entityVersion >= 2:
+            # TODO mosaic serialze
             pass
 
         return binaryStr
@@ -444,6 +444,8 @@ class NemConnect:
         data = {'data': transferData,
                 'signature': transferSignature
                 }
+
+        print data
         r = self.sendPost('transaction/announce', data)
         return r.ok, r.json()
 
