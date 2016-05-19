@@ -10,6 +10,7 @@ from binascii import hexlify, unhexlify
 
 
 class PrivateKeyAction(argparse.Action):
+
     def __init__(self, option_strings, dest, nargs=None, **kwargs):
         if nargs is not None:
             raise ValueError("nargs not allowed")
@@ -93,11 +94,13 @@ def prettyPrint(j):
     print json.dumps(j, indent=2)
 
 
-def sendAndAnnounceTransaction(connector, binaryTransferData):
+def sendAndAnnounceTransaction(connector, pk, binaryTransferData):
     print " [+] TRYING TO SIGN PREPARED DATA"
     print binaryTransferData
-    sig = a.sign(binaryTransferData)
 
+    print "private key: " + pk
+
+    sig = a.sign(binaryTransferData)
     ok, j = connector.transferAnnounce(binaryTransferData, hexlify(sig))
     if ok:
         print " [+] ANNOUNCED"
@@ -165,7 +168,7 @@ elif args.sub == 'transfer':
     transferData = c.prepareTransferData(a.getHexPublicKey(), args.multisig, recipient, amount, message, mosaics)
     print json.dumps(transferData)
     binaryTransferData = c.serializeTransferData(transferData)
-    sendAndAnnounceTransaction(c, binaryTransferData)
+    sendAndAnnounceTransaction(c, privkey, binaryTransferData)
     sys.exit(0)
 
 elif args.sub == 'remote':

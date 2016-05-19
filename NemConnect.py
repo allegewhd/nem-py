@@ -23,11 +23,14 @@ CURRENT_NETWORK_ID = 96
 
 # CURRENT_MOSAIC_SINK = 'MBMOSAICOD4F54EE5CDMR23CCBGOAM2XSKYHTOJD'
 # CURRENT_NAMESPACE_SINK = 'MAMESPACEWH4MKFMBCVFERDPOOP4FK7MTCZTG5E7'
+
+
 def CURRENT_NETWORK_VERSION(ver):
-  return (0x60000000 | ver)
+    return (0x60000000 | ver)
 
 
 class NemConnect:
+
     def __init__(self, address, port):
         self.address = address
         self.port = port
@@ -175,7 +178,7 @@ class NemConnect:
             'modifications': [
                 {'modificationType': 2, 'cosignatoryAccount': publicKey}
                 for publicKey in cosignatories
-                ]
+            ]
         }
         entity = dict(data.items() + custom.items())
         return entity
@@ -208,7 +211,7 @@ class NemConnect:
         timeStamp = self.getTimeStamp()
         data = NemConnect.createData(0x4001, senderPublicKey, timeStamp)
 
-        namespaceFqn,mosaicName = NemConnect.parseMosaicFqn(mosaicFqn)
+        namespaceFqn, mosaicName = NemConnect.parseMosaicFqn(mosaicFqn)
         custom = {
             'mosaicDefinition': {
                 'creator': senderPublicKey,
@@ -230,7 +233,7 @@ class NemConnect:
         }
         if 'levy' in props:
             levyFqn = props['levy']['mosaicFqn']
-            namespaceFqn,mosaicName = NemConnect.parseMosaicFqn(levyFqn)
+            namespaceFqn, mosaicName = NemConnect.parseMosaicFqn(levyFqn)
 
             custom['mosaicDefinition']['levy'] = {
                 "type": props['levy']['type'],
@@ -248,7 +251,7 @@ class NemConnect:
         timeStamp = self.getTimeStamp()
         data = NemConnect.createData(0x4002, senderPublicKey, timeStamp)
 
-        namespaceFqn,mosaicName = NemConnect.parseMosaicFqn(mosaicFqn)
+        namespaceFqn, mosaicName = NemConnect.parseMosaicFqn(mosaicFqn)
         custom = {
             'mosaicId': {
                 'namespaceId': namespaceFqn,
@@ -290,7 +293,7 @@ class NemConnect:
         for m in mosaics:
             quantity = m[1]
             mosaicFqn = m[0]
-            namespaceFqn,mosaicName = NemConnect.parseMosaicFqn(mosaicFqn)
+            namespaceFqn, mosaicName = NemConnect.parseMosaicFqn(mosaicFqn)
             ok, j = self.mosaicDefinition(namespaceFqn + ' * ' + mosaicName)
             if not ok:
                 return ok, j
@@ -342,13 +345,13 @@ class NemConnect:
         binaryStr += hexlify(struct.pack('i', entity['type']))
         binaryStr += hexlify(struct.pack("<L", entity['version']))
         binaryStr += hexlify(struct.pack('i', entity['timeStamp']))
-        binaryStr += hexlify(struct.pack('i', 32)) # Length of public key byte array (always 32)
+        binaryStr += hexlify(struct.pack('i', 32))  # Length of public key byte array (always 32)
         binaryStr += entity['signer']
         binaryStr += hexlify(struct.pack('l', entity['fee']))
         binaryStr += hexlify(struct.pack('i', entity['deadline']))
 
         # transfer transaction part
-        binaryStr += hexlify(struct.pack('i', 40)) # Length of recipient address (always 40)
+        binaryStr += hexlify(struct.pack('i', 40))  # Length of recipient address (always 40)
         binaryStr += hexlify(entity['recipient'])
         binaryStr += hexlify(struct.pack('l', entity['amount']))
 
@@ -369,7 +372,6 @@ class NemConnect:
             pass
 
         return binaryStr
-
 
     def prepareTransfer(self, senderPublicKey, multisigPublicKey, recipientCompressedKey, amount, message, mosaics):
         return self._prepare(self.prepareTransferData(senderPublicKey, multisigPublicKey, recipientCompressedKey, amount, message, mosaics))
@@ -410,7 +412,7 @@ class NemConnect:
             'modifications': [
                 {'modificationType': 1, 'cosignatoryAccount': publicKey}
                 for publicKey in cosignatories
-                ]
+            ]
         }
         entity = dict(data.items() + custom.items())
         r = self.sendPost('transaction/prepare', entity)
