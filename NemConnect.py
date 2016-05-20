@@ -334,6 +334,35 @@ class NemConnect:
             entity = self._multisigWrapper(senderPublicKey, entity)
         return entity
 
+    def serializeMosaicsData(self, mosaics):
+        mosaicsStr = ''
+
+        mosaicsStr += hexlify(struct.pack('i', len(mosaics)))
+
+        for mosaic in mosaics:
+            mosaicNsId = hexlify(mosaic['mosaicId']['recipient'])
+            mosaicName = hexlify(mosaic['mosaicId']['name'])
+            mosaicIdLen = 8 + len(mosaicNsId) + len(mosaicName)
+            mosaicLen = mosaicIdLen + 8
+
+            mosaicsStr += hexlify(struct.pack('i', mosaicLen))
+            mosaicsStr += hexlify(struct.pack('i', mosaicIdLen))
+            mosaicsStr += hexlify(struct.pack('i', len(mosaicNsId)))
+            mosaicsStr += mosaicNsId
+            mosaicsStr += hexlify(struct.pack('i', len(mosaicName)))
+            mosaicsStr += mosaicName
+            mosaicsStr += hexlify(struct.pack('l', mosaic['quantity']))
+
+        # {
+        #     'mosaicId': {
+        #         'namespaceId': namespaceFqn,
+        #         'name': mosaicName
+        #     },
+        #     'quantity': quantity
+        # }
+
+        return mosaicsStr
+
     def serializeTransferData(self, entity):
         """
             reference by http://bob.nem.ninja/docs/#creating-a-signed-transaction
@@ -368,8 +397,7 @@ class NemConnect:
 
         entityVersion = entity['version'] & 0xffffff
         if entityVersion >= 2:
-            # TODO mosaic serialze
-            pass
+            binaryStr += self.serializeMosaicsData(entity['mosaics'])
 
         return binaryStr
 
