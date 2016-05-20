@@ -99,6 +99,7 @@ def sendAndAnnounceTransaction(connector, pk, binaryTransferData):
     print binaryTransferData
 
     print "private key: " + pk
+    print "address: " + a.getAddress()
 
     sig = a.sign(binaryTransferData)
     ok, j = connector.transferAnnounce(binaryTransferData, hexlify(sig))

@@ -35,6 +35,9 @@ class Account:
         else:
             version = "\x68" + ripe
 
+        # for mijin net
+        version = "\x60" + ripe
+
         s2 = sha3_256()
         s2.update(version)
         checksum = s2.digest()[0:4]
